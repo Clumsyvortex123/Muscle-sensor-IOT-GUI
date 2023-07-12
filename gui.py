@@ -106,6 +106,46 @@ class EMGGraphApp(tk.Tk):
         self.canvas_second = FigureCanvasTkAgg(self.fig_second, master=self.second_plot_frame)
         self.canvas_second.draw()
         self.canvas_second.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Create the realtime tab
+        self.realtime_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.realtime_tab, text="Realtime")
+
+        # Frame for the realtime graph
+        self.realtime_frame = tk.Frame(self.realtime_tab, bg='#ffffff')
+        self.realtime_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+        # Figure and axes for the realtime plot
+        self.fig_realtime, self.ax_realtime = plt.subplots(figsize=(8, 6))
+        self.plot_line_realtime = None
+
+        # Canvas for embedding the realtime plot
+        self.canvas_realtime = FigureCanvasTkAgg(self.fig_realtime, master=self.realtime_frame)
+        self.canvas_realtime.draw()
+        self.canvas_realtime.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Button to get real-time input
+        self.realtime_button = tk.Button(self.realtime_tab, text="Get Realtime Input", command=self.get_realtime_input, bg='#ffffff', fg='#000000', relief=tk.RAISED)
+        self.realtime_button.pack(pady=10)
+
+        # Button to download realtime data
+        self.download_button = tk.Button(self.realtime_tab, text="Download Data", command=self.download_realtime_data, bg='#ffffff', fg='#000000', relief=tk.RAISED)
+        self.download_button.pack(pady=10)
+
+    def get_realtime_input(self):
+        # Code to get realtime input from OYmotion analog muscle sensor
+        # Update the realtime graph with the received data
+        pass
+
+    def download_realtime_data(self):
+        if self.realtime_data:
+            filename = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+            if filename:
+                df = pd.DataFrame(self.realtime_data)
+                df.to_csv(filename, index=False)
+                print("Realtime data downloaded successfully.")
+
+
     def import_csv(self):
         filename = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if filename:
@@ -160,7 +200,7 @@ class EMGGraphApp(tk.Tk):
             self.update_graph()
             self.update_idletasks()
             self.current_index += 1
-            self.after(1000, self.run_values_recursive)
+            self.after(100, self.run_values_recursive)
         else:
             self.running = False
             self.pause_button.config(state=tk.DISABLED)
