@@ -68,7 +68,7 @@ class EMGGraphApp(tk.Tk):
         # Button for pausing the graph
         self.pause_button = tk.Button(self.main_tab, text="Pause", command=self.pause_graph, state=tk.DISABLED, bg='#ffffff', fg='#000000', relief=tk.RAISED)
         self.pause_button.pack(side=tk.LEFT, padx=5)
-
+	
         # Create the specific timestamp tab
         self.timestamp_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.timestamp_tab, text="Specific Timestamp")
@@ -133,9 +133,16 @@ class EMGGraphApp(tk.Tk):
         self.download_button.pack(pady=10)
 
     def get_realtime_input(self):
-        # Code to get realtime input from OYmotion analog muscle sensor
-        # Update the realtime graph with the received data
-        pass
+        self.emg_data = pd.read_csv("data1.csv")
+        self.current_index = 0
+        self.plot_graph2()
+        self.realtimerecur()
+	
+    def realtimerecur(self):
+        self.update_graph2()
+        self.update_idletasks()
+        self.current_index += 1
+        self.after(100, self.realtimerecur())
 
     def download_realtime_data(self):
         if self.realtime_data:
@@ -194,6 +201,19 @@ class EMGGraphApp(tk.Tk):
             self.prev_button.config(state=tk.DISABLED)
             self.next_button.config(state=tk.DISABLED)
             self.run_values_recursive()
+    def plot_graph2(self):
+        if self.emg_data is not None:
+            self.ax_realtime.clear()
+            self.plot_line_realtime = self.ax_realtime.plot(self.emg_data["Time"], self.emg_data.iloc[:, 1:], linewidth=1)
+            self.ax_realtime.set_title("EMG Data")
+            self.ax_realtime.set_xlabel("Time")
+            self.ax_realtime.set_ylabel("Amplitude")
+            self.update_xaxis_limits_main()
+            self.canvas_realtime.draw()
+    def update_graph2(self):
+        if self.emg_data is not None and self.plot_line_realtime is not None:
+            self.update_xaxis_limits_main()
+            self.canvas_realtime.draw()
 
     def run_values_recursive(self):
         if self.current_index < len(self.emg_data) and self.running:
